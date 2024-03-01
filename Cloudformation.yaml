@@ -36,10 +36,9 @@ Parameters:
   SSHLocation:
     Description: The IP address range that can be used to SSH to the EC2 instances
     Type: String
-    MinLength: 9
-    MaxLength: 18
-    AllowedPattern: (?!0.0.0.0/0)(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})
-    ConstraintDescription: must be a valid IP CIDR range of the form xxx.xxx.xxx.xxx/xx and should not be 0.0.0.0/0
+    Default: 0.0.0.0/0
+    AllowedPattern: '(\d{1,3}\.){3}\d{1,3}/(\d{1,2})'
+    ConstraintDescription: must be a valid IP CIDR range of the form xxx.xxx.xxx.xxx/xx
   KeyName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
     Type: AWS::EC2::KeyPair::KeyName
@@ -47,6 +46,11 @@ Parameters:
   CertificateARN:
     Description: Certificate that needs to be added to the Load Balancer
     Type: String
+  CognitoDomainName:
+    Type: String
+    Description: The domain name for the Cognito User Pool
+    AllowedPattern: '^[a-zA-Z0-9-]+$'
+    ConstraintDescription: must consist of alphanumeric characters or hyphens
   AuthName:
     Type: String
     Description: Unique Auth Name for Cognito Resources
@@ -449,7 +453,7 @@ Resources:
           python3 -m pip install langchain
           python3 -m pip install anthropic
           cd /home/ec2-user
-          git clone https://github.com/aws-samples/personalized-travel-itinerary-planner.git
+          git clone https://github.com/Sensini7/personalized-travel-itinerary-planner.git
           chmod -R 777 personalized-travel-itinerary-planner
       Tags:
       - Key: Name
@@ -520,7 +524,7 @@ Resources:
     Type: "AWS::Cognito::UserPoolDomain"
     Properties:
       UserPoolId: !Ref UserPool
-      Domain: "travelplanner"
+      Domain: !Ref CognitoDomainName
 
   ALBListener2:
     Type: AWS::ElasticLoadBalancingV2::Listener
